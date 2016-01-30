@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: verb
+# key: verba
+# binding: C-M-v
+# --
+
+\verb!`yas/selected-text`!

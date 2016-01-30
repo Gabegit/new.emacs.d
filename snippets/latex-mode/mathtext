@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name : mathtext
+# key : mt
+# group : math
+# binding: C-M-3
+# --
+\\text\{`yas-selected-text`$0\}

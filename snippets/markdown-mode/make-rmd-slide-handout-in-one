@@ -1,0 +1,47 @@
+# -*- mode: snippet -*-
+# name: make-rmd-slide-handout-in-one
+# key: make
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# --
+
+# cut and save as a makefile in the file directory
+# make all/handout//beamer
+# use "----' to split slides,and perl command to remove '----'
+
+all: clean ioslides  beamer handout
+
+default: ioslides
+
+handout:
+	cp `(file-name-nondirectory (buffer-file-name))` `(file-name-nondirectory (file-name-sans-extension
+(buffer-file-name)))`-handout.Rmd
+	perl -pi -w -e 's/----//g;' `(file-name-nondirectory
+(file-name-sans-extension (buffer-file-name)))`-handout.Rmd
+	Rscript -e "rmarkdown::render('`(file-name-nondirectory
+(file-name-sans-extension
+(buffer-file-name)))`-handout.Rmd','${1:pdf_document}')"
+	rm -rf `(file-name-nondirectory
+(file-name-sans-extension (buffer-file-name)))`-handout.Rmd
+
+ioslides:
+	Rscript -e "rmarkdown::render('`(file-name-nondirectory
+(buffer-file-name)))`’,’ioslides_presentation')"
+
+beamer:
+	Rscript -e "rmarkdown::render('`(file-name-nondirectory
+(buffer-file-name)))`’,’beamer_presentation')"
+
+read-handout:
+	open `(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`-handout.pdf
+
+read-ioslides:
+	open `(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`.html
+
+read-beamer:
+	open `(file-name-nondirectory (file-name-sans-extension
+(buffer-file-name)))`.pdf
+
+clean:
+	rm -rf *.log *.out *.nav *.aux *.toc *.snm *.bbl *.blg *.tex *.vrb *~ *.pdf *.html
+
+
