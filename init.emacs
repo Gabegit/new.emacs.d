@@ -55,14 +55,15 @@
 
 
 ;;setting eng and chinese fonts， 最后一行为设置中英文可用鼠标+ctrl同步缩放
+;; emacs 24.5 设置字体不当会出现wheel down 时有残影，所以没有设置字体
 ;; Setting English Font
-(set-face-attribute
-  'default nil :font "DejaVu Sans Mono 18")
-;; Chinese Font
-(dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font (frame-parameter nil 'font)
-                      charset
-                      (font-spec :family "Microsoft YaHei" :size 18)))
+;; (set-face-attribute
+;;   'default nil :font "DejaVu Sans Mono 18")
+;; ;; Chinese Font
+;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
+;;     (set-fontset-font (frame-parameter nil 'font)
+;;                       charset
+;;                       (font-spec :family "Microsoft YaHei" :size 18)))
 ;(setq face-font-rescale-alist '("Microsoft Yahei" . 1.2))
 ;(setq face-font-rescale-alist '(("Microsoft Yahei" . 1.2) ("WenQuanYi Zen Hei" . 1.2)))
 ;(setq face-font-rescale-alist '(("PingFangSC-Regular" . 1.2) ("WenQuanYi Zen Hei" . 1.2)))
@@ -74,6 +75,7 @@
 ;;   "Face to use foR `hl-line-face'." :group 'hl-line)
 (setq hl-line-face 'hl-line)
 (global-hl-line-mode t) ; turn it on for all modes by default
+
 
 (setq-default line-spacing 7)
 
@@ -391,8 +393,8 @@ Call again to toggle back."
 ;(define-key inferior-ess-mode-map (kbd "C-%") 'then_R_operator)
 
 ; set mouse wheel scroll slower
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
-(setq mouse-wheel-progressive-speed nil)
+;(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+;(setq mouse-wheel-progressive-speed nil)
 
 
 ;;; indent for html
@@ -645,5 +647,18 @@ auto-complete-mode (lambda ()
 ;; C-c z u         zotelo-update-database	;
 
 
-(add-hook 'TeX-mode-hook 'zotelo-minor-mode)
+;(add-hook 'TeX-mode-hook 'zotelo-minor-mode)
 
+
+;; solving the scrolling blink problem
+ ;;; scroll one line at a time (less "jumpy" than defaults)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; two lines at a time
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+
+(global-set-key [wheel-right] (lambda ()
+                                 (interactive)
+                                 (scroll-left 1)))
+(global-set-key [wheel-left] (lambda ()
+                                (interactive)
+                                (scroll-right 1)))
