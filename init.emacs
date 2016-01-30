@@ -55,15 +55,17 @@
 
 
 ;;setting eng and chinese fonts， 最后一行为设置中英文可用鼠标+ctrl同步缩放
-;; emacs 24.5 设置字体不当会出现wheel down 时有残影，所以没有设置字体
+;; emacs 24.5 设置字体不当（好像是不能超过12号字）会出现wheel down 时有残影，
+;; 所以
+
 ;; Setting English Font
-;; (set-face-attribute
-;;   'default nil :font "DejaVu Sans Mono 18")
-;; ;; Chinese Font
-;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
-;;     (set-fontset-font (frame-parameter nil 'font)
-;;                       charset
-;;                       (font-spec :family "Microsoft YaHei" :size 18)))
+(set-face-attribute
+  'default nil :font "DejaVu Sans Mono 13")
+;; Chinese Font
+(dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font (frame-parameter nil 'font)
+                      charset
+                      (font-spec :family "Microsoft YaHei" :size 16)))
 ;(setq face-font-rescale-alist '("Microsoft Yahei" . 1.2))
 ;(setq face-font-rescale-alist '(("Microsoft Yahei" . 1.2) ("WenQuanYi Zen Hei" . 1.2)))
 ;(setq face-font-rescale-alist '(("PingFangSC-Regular" . 1.2) ("WenQuanYi Zen Hei" . 1.2)))
@@ -117,12 +119,12 @@
 
     ;; sync pdf with skim in mac
     ;; forward search:c-c c-c;back search from skim to tex using **shiht-cmd-click**
-   
+
     (setq TeX-view-program-list
      '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b"))) ; for mactex
-     
+
      (setq TeX-command-default "LaTeX")
-    
+
      (setq TeX-fold-env-spec-list (quote (("[comment]" ("comment")) ("[figure]" ("figure")) ("[table]" ("table"))("[itemize]"("itemize"))("[enumerate]"("enumerate"))("[description]"("description"))("[overpic]"("overpic"))("[tabularx]"("tabularx"))("[code]"("code"))("[shell]"("shell")))))))
 
 
@@ -662,3 +664,14 @@ auto-complete-mode (lambda ()
 (global-set-key [wheel-left] (lambda ()
                                 (interactive)
                                 (scroll-right 1)))
+
+;;;To completely turn off alarms use:
+
+(setq ring-bell-function 'ignore)
+
+;; remap cmd+w to kill-current-buffer
+(defun kill-current-buffer ()
+  (interactive)
+  (kill-buffer (current-buffer)))
+(global-set-key (kbd "s-w") 'kill-current-buffer)
+
