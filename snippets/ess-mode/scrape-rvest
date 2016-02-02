@@ -1,0 +1,98 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: scrape-rvest
+# key: rvest
+# --
+
+library(rvest) # extract web info
+library(stringr) # deal with strings, str_replace(str,old,new)
+
+# options
+# library(josnlite)
+# library(RSQLite)
+# library(dplyr) #data_frame,bind_rows() and bind_cols() for binding data
+# frames together.
+# If x is a list of data frames, bind_rows(x) is equivalent to do.call(rbind, x).
+
+# commands:
+## 1. parse an html page
+
+# read_html(x, ..., encoding = "")	Parse an HTML page.
+ # elections <- read_html(url, encoding = "UTF-8")
+
+# is.session	Simulate a session in an html browser.
+# html_session	Simulate a session in an html browser.
+# guess_encoding	Guess and repair faulty character encoding
+# encoding	Guess and repair faulty character encoding.
+# repair_encoding	Guess and repair faulty character encoding.
+
+# google_form	Make link to google form given id
+# html_children	Extract attributes, text and tag name from html.
+# html_form	Parse forms in a page.
+# html_children	Extract attributes, text and tag name from html.
+# jump_to	Navigate to a new url.
+# set_values	Set values in a form.
+# submit_form	Submit a form back to the server.
+# read_xml.response	Parse an HTML page.
+# read_xml.session	Parse an HTML page.
+# session_history	History navigation tools
+
+
+## 2. select nodes
+# html_node	Select nodes from an HTML document
+# html_nodes	Select nodes from an HTML document
+# back	History navigation tools
+# follow_link	Navigate to a new url...
+
+## 3. Extract attributes, text and tag name from html.
+
+# html_text(x, trim = FALSE)
+# html_name(x)
+# html_children(x)
+# html_attrs(x)
+# html_attr(x, name, default = NA_character_)
+# html_table	Parse an html table into a data frame.
+ # webpage %>%  html_nodes("table") %>% .[[1]] %>%  html_table()
+# pluck	Extract elements of a list by position.
+
+## 4. string manipulation
+
+# which()
+# encoding transform
+# iconv(x, from = "", to = "", sub = NA, mark = TRUE, toRaw = FALSE)
+
+# strsplit(urlstr,"<br>\n"),str_split(),str_trim(),substr(),
+# str_replace(str, old,new)
+# str_extract(str, pattern) #Extract matching patterns from a string.
+  # str_extract(a,"http.+\\.pdf")
+# grep(pattern,str) and grepl(patt,stri), sub(pat,repl, str),gsub(pat,rep,x)
+
+
+## 4. rbind rows and save to files
+# do.call("rbind", listof.data.frame)
+# rbind.data.frame(olddf, newdf)
+
+# bind_rows(lapply(alist, function(x) { }))
+
+# list.files(), list.dir(),file.copy(),
+#
+# dir.create(dire)
+# 如果文件存在，先删除它
+   # pdffile <- paste0(dir,"/",filename,".pdf")
+   #if (!file.exists(pdffile)){
+   # 	#file.remove(paste("output/",name,".html",sep=""))
+   #	curl_download(link,pdffile)
+   # }
+# ph_dir = "phjs"
+# if (!dir.exists(ph_dir)) dir.create(ph_dir)
+
+## 5. scrape pages with javascript
+##  write out a script phantomjs can process
+# writeLines(sprintf("var page = require('webpage').create();
+#  page.open('%s', function () {
+#  console.log(page.content); //page source
+#    phantom.exit();
+#    });", furl), con="scrape.js")
+
+## process it with phantomjs
+# scrape_html <- paste0("/Users/gabe/xcode/inbox/phantomjs scrape.js > ",ph_dir,"/",fname,".html")
+# system(scrape_html )
