@@ -6,10 +6,9 @@
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(current-language-environment "UTF-8")
- '(custom-enabled-themes (quote (tango-dark)))
  '(custom-safe-themes
    (quote
-    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
+    ("68d36308fc6e7395f7e6355f92c1dd9029c7a672cbecf8048e2933a053cf27e6" "38ba6a938d67a452aeb1dada9d7cdeca4d9f18114e9fc8ed2b972573138d4664" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" default)))
  '(ido-enable-regexp t)
  '(ido-everywhere nil)
  '(markdown-coding-system (quote utf-8-with-signature))
@@ -37,7 +36,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(hl-line ((t (:background "dark cyan")))))
 
 (require 'package)
 ;; (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
@@ -73,11 +72,15 @@
 
 ;; highlight the current line; set a custom face, so we can
 ;; recognize from the normal marking (selection)
-;; (defface hl-line '((t (:background "Green")))
 ;;   "Face to use foR `hl-line-face'." :group 'hl-line)
 (setq hl-line-face 'hl-line)
 (global-hl-line-mode t) ; turn it on for all modes by default
 
+;; Set any color as the background face of the current line: ;
+;;(set-face-background 'hl-line "#3e4446")
+
+;; To keep syntax highlighting in the current line:
+(set-face-foreground 'highlight nil)
 
 (setq-default line-spacing 7)
 
@@ -190,12 +193,12 @@ Return a list of installed packages or nil for every skipped package."
 (package-initialize)
 
 ;; Assuming you wish to install "iedit" and "magit"
-(ensure-package-installed
- 'iedit
- 'magit
- 'stan-mode
- 'julia-mode
- )
+;; (ensure-package-installed
+;;  'iedit
+;;  'magit
+;;  'stan-mode
+;;  'julia-mode
+;; )
 
 ;;yasnippet ;;;;;;;;;;;;;
 (yas-global-mode 1)
@@ -243,7 +246,51 @@ Call again to toggle back."
 
 ;(error "No error until here")
 
-;;;;;org-mode
+;;;;;;;;;;;;;;;;;;;;;;
+;;;;;org-mode;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+;; some useful tips
+;; auto check parens
+(add-hook 'markdown-mode-hook
+            (lambda ()
+              (when buffer-file-name
+                (add-hook 'after-save-hook
+                          'check-parens
+                          nil t))))
+
+
+;; 使用 Org-mode Table 的表格编辑，然后当保存文件时，将
+;; -+-替换为 -|- ，转化为一个 Markdown Table。再次打开后，当按 TAB，
+;; 又会转化为 Org Table，进而利用其良好的编辑功能。
+;; 但是开启orgtbl-mode，markdown-mode中预览模式的快捷键失效，因为
+;; c-c c-c 被orgtbal-mode占用了，而markdown-mode的预览命令的快捷键是
+;; 以c-c c-c 开头的，所以只好重新绑定orgtbl-mode的c-c c-c的命令
+;; 为 `c-c cmd-c`
+
+
+;; (add-hook 'orgtbl-mode-hook
+;;       (lambda ()
+;;         (local-unset-key (kbd "C-c C-"))
+;; 	(define-key orgtbl-mode-map "\C-c \s-c" 'orgtbl-ctrl-c-ctrl-c )))
+
+;; ;(define-key orgtbl-mode (kbd "C-c s-c") nil)
+;; ;(define-key (kbd "C-c s-c") 'orgtbl-ctrl-c-ctrl-c )
+
+;;  (require 'org-table)
+
+;; (defun cleanup-org-tables ()
+
+;;   (save-excursion
+;;     (goto-char (point-min))
+;;     (while (search-forward "-+-" nil t) (replace-match "-|-"))
+;;     ))
+
+;; (add-hook 'markdown-mode-hook 'orgtbl-mode)
+;; (add-hook 'markdown-mode-hook
+;;           (lambda()
+;;             (add-hook 'after-save-hook 'cleanup-org-tables  nil 'make-it-local)))
+
 
 ;;orgtbl-mode for transfering org table to markdown table
 ;;  Usage Example:
@@ -610,7 +657,9 @@ auto-complete-mode (lambda ()
 ;(global-set-key (kbd "S-C-<up>") 'enlarge-window)
 
 
-(load-theme 'solarized-light t)
+;(load-theme 'solarized-dark t)
+;;(load-theme 'tango-dark t)
+(load-theme 'zenburn t)
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; markdown-mode;;;;;;
@@ -624,7 +673,7 @@ auto-complete-mode (lambda ()
 (add-to-list 'auto-mode-alist '("\\.Rmd\\'" . markdown-mode))
 
 ; stan-mode
- (require 'stan-mode)
+  (require 'stan-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;flycheck;;;;;;;;;;;;;;;
@@ -674,4 +723,67 @@ auto-complete-mode (lambda ()
   (interactive)
   (kill-buffer (current-buffer)))
 (global-set-key (kbd "s-w") 'kill-current-buffer)
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; c++ mode;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+;; auto-complete c headers
+(defun my:ac-c-header-init ()
+  (require 'auto-complete-c-headers)
+  (add-to-list 'ac-sources 'ac-source-c-headers)
+  (add-to-list 'achead:include-directories '"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"))
+
+(add-hook 'c++-mode-hook 'my:ac-c-header-init)
+(add-hook 'c-mode-hook 'my:ac-c-header-init)
+
+;;; helm:Helm is incremental completion and selection narrowing framework for Emacs. It will help steer you in the right direction when you're looking for stuff in Emacs (like buffers, files, etc).
+
+;; Minimal config:
+(require 'helm-config)
+(helm-mode 1)
+
+;; Extended config:
+ (require 'helm)
+(require 'helm-config)
+
+;; The default "C-x c" is quite close to "C-x C-c", which quits Emacs.
+;; Changed to "C-c h". Note: We must set "C-c h" globally, because we
+;; cannot change `helm-command-prefix-key' once `helm-config' is loaded.
+(global-set-key (kbd "C-c h") 'helm-command-prefix)
+(global-unset-key (kbd "C-x c"))
+
+(helm-autoresize-mode 1)
+;(setq helm-ff-auto-update-initial-value nil)    ; 禁止自动补全
+
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+
+(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-s") 'helm-occur)
+(global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
+
+(setq helm-split-window-in-side-p           t
+      helm-move-to-line-cycle-in-source     t
+      helm-ff-search-library-in-sexp        t
+      helm-M-x-fuzzy-match                  t   ; 模糊搜索
+      helm-buffers-fuzzy-matching           t
+      helm-locate-fuzzy-match               t
+      helm-recentf-fuzzy-match              t
+      helm-scroll-amount                    8
+      helm-ff-file-name-history-use-recentf t)
+
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to run persistent action
+(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
+(define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+
+
+
+
+
+
+
+
+
 
