@@ -11,11 +11,8 @@
 #' @brief $1
 #'
 
-prjPath = "`(file-name-directory (buffer-file-name))`" # \\ need to be replaced by /
-rawDataPath = paste(prjPath,"../dataRaw/",sep="")
-cleanDataPath = paste(prjPath,"../dataClean/",sep="")
-
-setwd(prjPath)
+prj.path = "`(file-name-directory (buffer-file-name))`" # \\ need to be replaced by /
+setwd(prj.path)
 getwd()
 
 
