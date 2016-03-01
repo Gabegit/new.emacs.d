@@ -9,7 +9,9 @@
 # beamers in slides, handout notes in handout, ioslide htmls in iosldes.
 # 使用rmdyaml 生成yaml header
 # Rmd文件slides分割用“----”
-# please first mkdir manually: slides ioslides handout input codes include
+# \note{ notes } will not show in beaber with after_body:peamble_slide.tex
+# in yaml, but will show in handout
+# please first mkdir using servie workflow: slides ioslides handout input codes include
 
 ##############################
 # define the dir variables
@@ -84,7 +86,10 @@ slide_f:${f} $(latex_template)
 # compile rmd to handout latex pdf
 handout_f: ${f}
 	cp ${f} $(addsuffix -handout.Rmd,$(basename ${f}))
-	perl -pi -w -e 's/----//g;' $(addsuffix -handout.Rmd,$(basename ${f}))
+	perl -pi -w -e 's/----//g;' $(addsuffix -handout.Rmd,$(basename
+	${f}))
+	# 将\note{word notes} 替代为word notes
+	perl -0pi -w  -e 's/\\note{(.+\s+.+)?}/$1/g;' $(addsuffix -handout.Rmd,$(basename ${f}))
 	Rscript -e "rmarkdown::render('$(addsuffix -handout.Rmd,$(basename ${f}))','pdf_document')"
 	mv  $(addsuffix -handout.pdf,$(basename ${f})) handout/$(addsuffix -handout.pdf,$(basename ${f}))
 	mv  $(addsuffix -handout.Rmd,$(basename ${f})) input/$(addsuffix -handout.Rmd,$(basename ${f}))
