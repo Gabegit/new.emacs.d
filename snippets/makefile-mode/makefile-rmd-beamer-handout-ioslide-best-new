@@ -72,37 +72,36 @@ latex_theme=CambridgeUS
 # define a template
 latex_template=/Users/gabe/.emacs.d/beamer_template.tex
 
-slide_f:${f} $(latex_template)
-	Rscript -e "rmarkdown::render('${f}','beamer_presentation')"
-	mv  $(addsuffix .pdf,$(basename ${f})) slides/$(addsuffix .pdf,$(basename ${f}))
-	mv  $(addsuffix .tex,$(basename ${f})) input/$(addsuffix .tex,$(basename ${f}))
+slide_f:$\{f\} $(latex_template)
+	Rscript -e "rmarkdown::render('$\{f\}','beamer_presentation')"
+	mv  $(addsuffix .pdf,$(basename $\{f\})) slides/$(addsuffix .pdf,$(basename $\{f\}))
+	mv  $(addsuffix .tex,$(basename $\{f\})) input/$(addsuffix .tex,$(basename $\{f\}))
 	# if [ condition ]; then action; fi 注意条件放在[ ] 中，两边留空格，
 	# 且所有放在一行，或用 \ 连接
-	if [ -d  $(addsuffix _files,$(basename ${f})) ]; then \
-	cp -R  $(addsuffix _files/,$(basename ${f})) input/$(addsuffix _files/,$(basename ${f})); \
-	rm -rf  $(addsuffix _files/,$(basename ${f})); \
+	if [ -d  $(addsuffix _files,$(basename $\{f\})) ]; then \
+	cp -R  $(addsuffix _files/,$(basename $\{f\})) input/$(addsuffix _files/,$(basename $\{f\})); \
+	rm -rf  $(addsuffix _files/,$(basename $\{f\})); \
 	fi
 
 # compile rmd to handout latex pdf
-handout_f: ${f}
-	cp ${f} $(addsuffix -handout.Rmd,$(basename ${f}))
-	perl -pi -w -e 's/----//g;' $(addsuffix -handout.Rmd,$(basename
-	${f}))
+handout_f: $\{f\}
+	cp $\{f\} $(addsuffix -handout.Rmd,$(basename $\{f\}))
+	perl -pi -w -e 's/----//g;' $(addsuffix -handout.Rmd,$(basename	$\{f\}))
 	# 将\note{word notes} 替代为word notes
-	perl -0pi -w  -e 's/\\note{(.+\s+.+)?}/$1/g;' $(addsuffix -handout.Rmd,$(basename ${f}))
-	Rscript -e "rmarkdown::render('$(addsuffix -handout.Rmd,$(basename ${f}))','pdf_document')"
-	mv  $(addsuffix -handout.pdf,$(basename ${f})) handout/$(addsuffix -handout.pdf,$(basename ${f}))
-	mv  $(addsuffix -handout.Rmd,$(basename ${f})) input/$(addsuffix -handout.Rmd,$(basename ${f}))
-	mv  $(addsuffix -handout.tex,$(basename ${f})) input/$(addsuffix -handout.tex,$(basename ${f}))
-	if [ -d $(addsuffix -handout_files,$(basename ${f})) ]; then \
-		cp -R  $(addsuffix -handout_files/,$(basename ${f})) input/$(addsuffix -handout_files/,$(basename ${f})); \
-		rm -rf  $(addsuffix -handout_files/,$(basename ${f})); \
+	perl -0pi -w  -e 's/\\note{(.+\s*.+)?}/$1/g;' $(addsuffix -handout.Rmd,$(basename $\{f\}))
+	Rscript -e "rmarkdown::render('$(addsuffix -handout.Rmd,$(basename $\{f\}))','pdf_document')"
+	mv  $(addsuffix -handout.pdf,$(basename $\{f\})) handout/$(addsuffix -handout.pdf,$(basename $\{f\}))
+	mv  $(addsuffix -handout.Rmd,$(basename $\{f\})) input/$(addsuffix -handout.Rmd,$(basename $\{f\}))
+	mv  $(addsuffix -handout.tex,$(basename $\{f\})) input/$(addsuffix -handout.tex,$(basename $\{f\}))
+	if [ -d $(addsuffix -handout_files,$(basename $\{f\})) ]; then \
+		cp -R  $(addsuffix -handout_files/,$(basename $\{f\})) input/$(addsuffix -handout_files/,$(basename $\{f\})); \
+		rm -rf  $(addsuffix -handout_files/,$(basename $\{f\})); \
 	fi
 
 # compile Rmd to ioslide html slides
-ioslide_f: ${f}
-	Rscript -e "rmarkdown::render('${f}','ioslides_presentation')"
-	mv  $(addsuffix .html,$(basename ${f})) ioslides/$(addsuffix .html,$(basename ${f}))
+ioslide_f: $\{f\}
+	Rscript -e "rmarkdown::render('$\{f\}','ioslides_presentation')"
+	mv  $(addsuffix .html,$(basename $\{f\})) ioslides/$(addsuffix .html,$(basename $\{f\}))
 	
 # compile a Rmd file to three format together
 # usage: make all_f f="demo.Rmd"
