@@ -16,6 +16,10 @@ output:
     theme:  CambridgeUS #Frankfurt
     toc: yes
     keep_tex: yes # 不加这条将读不了在线图形
+    includes:
+      in_header:
+      before_body:
+      after_body:
   ioslides_presentation:
     incremental: yes
     slide_level: 3
@@ -25,26 +29,17 @@ output:
     latex_engine: xelatex #编译有中文的.rmd
     number_sections: yes
     toc: yes
-    # include:
+    # includes:
     #   after_body: include/lect-1-reference.tex
 mainfont: SimSun
 monofont: Microsoft YaHei
+# pandoc template variables
 header-includes:
 - \usepackage{xeCJK}
 - \linespread{1.3}\selectfont
+- \usepackage[usenames, dvipsnames]{color}
 - \let\oldtexttt\texttt
 - \renewcommand{\texttt}[1]{\textcolor{blue}{\oldtexttt{#1}}}
-#- \usepackage[UTF8]{ctex}
-#- \usepackage{xeCJK}
-# - \XeTeXlinebreaklocale "zh"# 中文自动换行
-# - \XeTeXlinebreakskip = 0pt plus 1pt #字之间加0pt至1pt间距
-# - \parindent 2em> # 段缩进
-#- \setlength{\parskip}{10pt}# 段间距
-# - \usepackage{fancyhdr}
-# - \pagestyle{fancy}
-# - \fancyhead[CO,CE]{This is fancy header}
-# - \fancyfoot[CO,CE]{And this is a fancy footer}
-# - \fancyfoot[LE,RO]{\thepage}
 sansfont: Microsoft YaHei
 fontsize: 12pt
 ---
