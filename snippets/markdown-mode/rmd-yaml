@@ -6,14 +6,15 @@
 
 ---
 title: "${0}"
+# yaml
 author: "${1:李国民}"
 date: '\`r format(Sys.Date(), "%Y %B %d")`'
 output:
   beamer_presentation:
-    colortheme: lily
+    ##colortheme: lily
     latex_engine: xelatex
     slide_level: 2
-    theme:  CambridgeUS #Frankfurt
+    theme: CambridgeUS #Frankfurt
     toc: yes
     keep_tex: yes # 不加这条将读不了在线图形
     includes:
@@ -27,19 +28,27 @@ output:
   pdf_document:
     keep_tex: yes
     latex_engine: xelatex #编译有中文的.rmd
+    template: !expr rticles::ctex_template()
     number_sections: yes
     toc: yes
     # includes:
     #   after_body: include/lect-1-reference.tex
-mainfont: SimSun
+##mainfont: SimSun
 monofont: Microsoft YaHei
-# pandoc template variables
+## pandoc template variables
 header-includes:
 - \usepackage{xeCJK}
 - \linespread{1.3}\selectfont
-- \usepackage[usenames, dvipsnames]{color}
+##- \usepackage[usenames, dvipsnames]{color}
 - \let\oldtexttt\texttt
 - \renewcommand{\texttt}[1]{\textcolor{blue}{\oldtexttt{#1}}}
+- \newcounter{ctProb}
+- \addtocounter{ctProb}{1}
+- \newcommand{\examp}{【\emph{例题} \arabic{ctProb}】 \ \addtocounter{ctProb}{1}}
+- \newcounter{ctsolu}
+- \addtocounter{ctsolu}{1}
+- \newcommand{\solu}{【\emph{解答} \arabic{ctsolu}】 \ \addtocounter{ctsolu}{1}}
 sansfont: Microsoft YaHei
-fontsize: 12pt
+CJKmainfont: SimHei
+fontsize: 13pt
 ---

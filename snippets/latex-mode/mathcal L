@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: mathcal L
+# key: mcl 
+# --
+\\mathcal\{L\} 

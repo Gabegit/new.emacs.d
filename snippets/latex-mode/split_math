@@ -3,7 +3,7 @@
 # key: split
 # group : math
 # --
-%%分段对齐公式,只有一个公式号
+
 \begin{equation}\label{eq:$1} 
    \begin{split}
     $2 & $3  \\\\
