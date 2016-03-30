@@ -50,5 +50,6 @@ header-includes:
 - \newcommand{\solu}{【\emph{解答} \arabic{ctsolu}】 \ \addtocounter{ctsolu}{1}}
 sansfont: Microsoft YaHei
 CJKmainfont: SimHei
-fontsize: 13pt
+fontsize: 14pt
+#classoption: draft # fast compile
 ---

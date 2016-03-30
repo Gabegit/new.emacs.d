@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: makeslide-using-makefile
+# key: makeslide
+# --
+
+make -f ~/.emacs.d/makefile slide_f f="`(buffer-file-name)`"
