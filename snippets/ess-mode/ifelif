@@ -1,0 +1,14 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: ifelif
+# key: ifelif
+# expand-env : ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# contributor : liguomin
+# --
+
+if ($0) {
+   $1
+} else if ($2) {
+   $3
+} else {
+   $4
+}

@@ -1,0 +1,8 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: webmath-html-pdf
+# key: webmath
+# --
+
+pandoc -s -r  html+tex_math_dollars+tex_math_single_backslash -t markdown -o $1.md $2.html
+pandoc -s --mathjax -f markdown -t latex -o $1.pdf $1.md
+pandoc -s --mathjax -f markdown -t html -o $1.html $1.md

@@ -1,14 +1,11 @@
-;; ado-mode.el --- ado mode, and its idiosyncratic commands.
+;;; ado-mode.el --- ado mode, and its idiosyncratic commands.
 
-;; Copyright (C) 1996,..., 2014 Bill Rising
+;; Copyright (C) 1996,..., 2016 Bill Rising
 
 ;; Maintainer: Bill Rising, brising at stata dot com
 ;; Keywords: ado-mode, highlighting
-;; Version: 1.13.1.0 of Jan 22, 2014
+;; Version: 1.14.1.0 of March 23, 2016
 ;;
-;; the old version system was 0.stata-version times ten.update
-;; the new version system is now 1.stataversion.statasubversion.update
-;; 
 ;; This file is NOT part of GNU Emacs.
 
 ;; This ado-mode is free software; you can redistribute it and/or modify
@@ -209,6 +206,8 @@
   '("Help file" . ado-new-help))
 (define-key ado-mode-map [menu-bar ado new ado-new-cscript]
   '("Cert script" . ado-new-cscript))
+(define-key ado-mode-map [menu-bar ado new ado-new-testado]
+  '("New do-file for program testing" . ado-new-testado))
 (define-key ado-mode-map [menu-bar ado new ado-insert-new-program]
   '("Insert new subprogram" . ado-insert-new-program))
 (define-key ado-mode-map [menu-bar ado new ado-new-program]
@@ -438,7 +437,8 @@ This will make ado-mode load when you open an ado or do file."
 ;  (make-local-variable 'indent-region-function)
 ;  (setq indent-region-function 'ado-indent-function)
   (make-local-variable 'paragraph-start)
-  (setq paragraph-start (concat "$\\|" page-delimiter))
+;; changed June 26, 2015 to same def as from c-mode
+  (setq paragraph-start (concat "[ 	]*\\(//\\|///\\|\\**\\)[ 	]*$\\|^" page-delimiter))
   (make-local-variable 'paragraph-separate)
   (setq paragraph-separate paragraph-start)
   ;; comment definitions
@@ -640,7 +640,7 @@ continuation characters."
 		  (setq found-it nil)
 		  (end-of-line)))
 	 (unless found-it
-		(unless (looking-back "[ \t]+")
+		(unless (looking-back "[ \t]+" (point-at-bol))
 		  (insert " "))
 		(insert cont-string)
 		(forward-char (- cont-length)))
@@ -686,51 +686,64 @@ continuation characters."
 	(insert "}"))
   )
 
-(defun ado-new-generic (type exten srcstr &optional stayput name purpose cusblp)
-  "Allows overloading the new program to work for ado, class, do, mata and other files"
-  (let (fullname buffullname (keepbuf t))
+(defun ado-new-generic (type exten &optional stayput name purpose cusblp)
+  "Allows overloading the new program to work for ado, class, do, mata and other files."
+  (let (fullname buffullname (keepbuf t) (searchstr "startHere"))
 	(unless name
 	  (setq name (read-from-minibuffer (concat "What is the name of the " type "? "))))
 	(setq fullname (concat name "." exten))
-	(unless purpose
-	  (setq purpose (read-from-minibuffer "What does it do? ")))
 	(setq buffullname
-		  (switch-to-buffer (generate-new-buffer fullname)))
+;		  (switch-to-buffer (generate-new-buffer fullname)))
+		  (set-buffer (generate-new-buffer fullname)))
 	(ado-mode)
 	(if cusblp
 		(ado-insert-boilerplate cusblp nil t)
-	  (ado-insert-boilerplate (concat exten ".blp")))
-	(if (and ado-new-dir (not stayput) (not (string= type "do-file")))
-		(if (y-or-n-p "Put in 'new' directory? ")
-			(cd (directory-file-name ado-new-dir))))
+	  (ado-insert-boilerplate
+	   (if (and (string= type "program") (string= exten "do"))
+		   "testado.blp"
+		 (concat exten ".blp"))))
+	(unless purpose
+	  (goto-char (point-min))
+	  (if (search-forward "*!")
+		  (setq purpose (read-from-minibuffer "What does it do? ")))
+	  )
+	(if (and (or ado-new-dir ado-personal-dir) (not stayput) (not (string= type "do-file")))
+		(if ado-new-dir
+			(if (y-or-n-p "Put in 'new' directory? ")
+				(cd (directory-file-name ado-new-dir)))
+		  (if ado-personal-dir
+			  (if (y-or-n-p "Put in 'personal' directory? ")
+				  (cd (directory-file-name ado-personal-dir)))
+			)))
 	(if (file-exists-p fullname)
 		(setq keepbuf (y-or-n-p (concat "File " fullname " already exists! Overwrite?"))))
 	(if keepbuf
 		(progn
-		;;  (ado-mode)
-		  ;; check to see if this is really new
+		  (if (string= ado-version-command "")
+			(ado-reset-version-command))
 		  (goto-char (point-min))
-		  (end-of-line)
-		  (insert (ado-nice-current-date))
-		  (search-forward "*!")
-		  (end-of-line)
-		  (insert purpose)
-		  (if srcstr
-			  (if (string= "do-file" type)
-				  (progn
-					(while (search-forward srcstr nil t)
-					  (replace-match name))
-					(goto-char (point-min))
-					;; awful hack
-					(re-search-forward "^clear[ /t]*\\(all\\)?")
-					(forward-char))
-				(search-forward srcstr)
-				(forward-char)
-				(insert name)))
-		  (re-search-forward "\t" nil t)
+		  (while (search-forward "stata!!version" nil t)
+			(replace-match ado-version-command))
+		  (goto-char (point-min))
+		  (if (search-forward "*!")
+			  (progn
+				(end-of-line)
+				(insert (ado-nice-current-date))
+				(if (search-forward "*!")
+					(progn
+					  (end-of-line)
+					  (insert purpose)
+					  ))))
+		  (goto-char (point-min))
+		  (while (search-forward "putNameHere" nil t)
+			(replace-match name))
+		  (goto-char (point-min))
+		  (while (search-forward searchstr nil t)
+			(replace-match ""))
 		  (if ado-fontify-new-flag (turn-on-font-lock))
 		  ;; .ado, .class, and the outdated .hlp files are the only ones where
 		  ;;     a decent name can be made
+		  (switch-to-buffer buffullname)
 		  (if (or
 			   (string= type "ado")
 			   (string= type "class")
@@ -740,14 +753,15 @@ continuation characters."
 			(ado-save-program))
 		  )
 	  (kill-buffer buffullname)
-	  )))
+	  )
+	))
 
 (defun ado-new-do (&optional stayput name purpose)
   "Makes a new do-file by inserting the file do.blp from the template
 directory. The do-file is made to keep its own named log so that it
 can be called by other do-files."
   (interactive)
-  (ado-new-generic "do-file" "do" "putNameHere" stayput name purpose))
+  (ado-new-generic "do-file" "do" stayput name purpose))
 
 (defun ado-new-mata (&optional stayput name purpose)
   "Makes a new buffer by inserting the file mata.blp from the template
@@ -756,7 +770,7 @@ itself. Asks if the file should be saved in the `new' directory. If the
 answer is no, the file will be saved in the current working directory.
 Bound to \\[ado-new-mata]"
   (interactive)
-  (ado-new-generic "mata file" "mata" nil stayput name purpose))
+  (ado-new-generic "mata file" "mata" stayput name purpose))
 
 (defun ado-new-class (&optional stayput name purpose)
   "Makes a new buffer by inserting the file class.blp from the template
@@ -765,7 +779,7 @@ itself. Asks if the file should be saved in the `new' directory. If the
 answer is no, the file will be saved in the current working directory.
 Bound to \\[ado-new-class]" 
   (interactive)
-  (ado-new-generic "class" "class" "class" stayput name purpose)
+  (ado-new-generic "class" "class" stayput name purpose)
   )
 
 (defun ado-new-program (&optional stayput name purpose)
@@ -775,9 +789,19 @@ itself. Asks if the file should be saved in the `new' directory. If the
 answer is no, the file will be saved in the current working directory.
 Bound to \\[ado-new-program]" 
   (interactive)
-  (ado-new-generic "program" "ado" "program define" stayput name purpose))
+  (ado-new-generic "program" "ado" stayput name purpose))
 
 (defalias 'ado-new-ado 'ado-new-program)
+
+(defun ado-new-testado (&optional stayput name purpose)
+"Makes a new buffer by inserting the file testado.blp from the template
+directory. The templay is a do-file which -includes- an ado-file by the
+same name for easier debugging. Asks if the do-file should be saved in 
+the `new' directory. If the answer is no, the file will be saved in the 
+current working directory.
+Bound to \\[ado-new-testado]" 
+  (interactive)
+  (ado-new-generic "program" "do" stayput name purpose))
 
 (defun ado-marker-program ()
   (interactive)
@@ -1144,16 +1168,21 @@ the ado-extension has been set properly. Throws an error if the name cannot be
 determined. This was split from \\[ado-make-file-name] because of big changes
 to help files in Stata 12 (and the initial buggy fix)."
   (let ((debug-on-error t) name-start name-end full-name) ; titlepos syntaxpos (name-start nil))
-	(cond 
-	 ((search-forward-regexp "{manlink[ \t]+.*?[ \t]+\\(.*?\\)[ \t]*}" nil t)
-	  (setq full-name (mapconcat 'identity (split-string (match-string-no-properties 1 nil)) "_")))
-	 ((re-search-forward "{\\(bf\\|cmd\\|hi\\):[ \t]+\\(.*?\\)[ \t]*}" nil t)
-	  (setq full-name (mapconcat 'identity (split-string (match-string-no-properties 2 nil)) "_")))
-	 ((search-forward "help for " nil t) ; very old help
-	  (re-search-forward "{\\(bf\\|cmd\\|hi\\):[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)\\b" nil t)
-	  (setq full-name (mapconcat 'identity (split-string (match-string-no-properties 1 nil)) "_")))
-	 (t (error "Could not figure out help file name!"))
-	)
+	(save-excursion
+	  (goto-char (point-min))
+	  (cond 
+	   ((search-forward-regexp "{manlink[ \t]+.*?[ \t]+\\(.*?\\)[ \t]*}" nil t)
+		(setq full-name (mapconcat 'identity (split-string (match-string-no-properties 1 nil)) "_")))
+	   ((re-search-forward "{\\(bf\\|cmd\\|hi\\):[ \t]*help[ \t]+\\(.*?\\)[ \t]*}" nil t)
+		(setq full-name (mapconcat 'identity (split-string (match-string-no-properties 2 nil)) "_")))
+	   ((re-search-forward "{\\(bf\\|cmd\\|hi\\):[ \t]*\\(.*?\\)[ \t]*}" nil t)
+		(setq full-name (mapconcat 'identity (split-string (match-string-no-properties 2 nil)) "_")))
+	   ((search-forward "help for " nil t) ; very old help
+		(re-search-forward "{\\(bf\\|cmd\\|hi\\):[ \t]*\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)\\b" nil t)
+		(setq full-name (mapconcat 'identity (split-string (match-string-no-properties 1 nil)) "_")))
+	   (t (error "Could not figure out help file name!"))
+	   )
+	  )
 	(concat full-name "." ado-extension))
   )
   

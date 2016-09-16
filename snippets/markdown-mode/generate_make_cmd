@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: generate_make_cmd
+# key: gen
+# --
+make slide_f f="`(file-name-nondirectory (buffer-file-name))`"
